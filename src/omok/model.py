@@ -23,7 +23,53 @@ class Model:
         self.is_stop = False
         self.learnning_rate = .00017
         self.is_check_loss_threshold = False
-
+        self.layers = []
+    
+    def add_conv2d(self
+                , filter_size
+                , output_channel_size
+                , width              = -1 
+                , height             = -1 
+                , input_channel_size = -1
+                , act_func                    = tf.nn.relu
+                , weights_init_func           = tf.truncated_normal
+                , dict_weights_init_func_args = { 'stddev':.1 }
+                , dict_conv_args              = { 'strides':[1,1,1,1], 'padding':'SAME'} 
+                ):
+        
+        if width == -1 and height == -1 and input_channel_size == -1 :
+            width, height, input_channel_size = self.get_width_height_input_channel_size()
+            
+        w = self.make_tf_variable(  [filter_size,filter_size,input_channel_size, output_channel_size] 
+                                  , weights_init_func
+                                  , dict_weights_init_func_args)
+        
+        b = self.make_tf_variable(  [output_channel_size] 
+                                  , weights_init_func
+                                  , dict_weights_init_func_args)
+        
+        if self.current is None :
+            self.add_layer( width * height * input_channel_size)
+            
+        reshape = tf.reshape (self.current,[ -1, width, height , input_channel_size ])
+        conv2d = tf.nn.conv2d ( reshape, w, **dict_conv_args )
+        self.current = act_func ( conv2d + b )
+        self.layers.append(self.current)
+        
+    def make_tf_variable (self, shape, init_func, args, name=None):
+        init_val = init_func ( shape, **args )
+        return tf.Variable ( init_val , name= name)
+    
+    def get_width_height_input_channel_size(self):
+        shape = self.current.get_shape().as_list()
+        # [None, width, height, out_channel] convolution layer 
+        if shape.__len__() == 4 :
+            return shape[1], shape[2], shape[3]  
+    
+    def add_pool(self, size=2):
+        self.current = tf.nn.max_pool ( self.current, ksize =[1,size,size,1]
+            ,strides=[1,size,size,1]
+            ,padding='SAME' )
     
     def add_layer(self, neuron_num=-1, name  = None, shape=None
                   ,   act_func               = tf.nn.softplus
@@ -36,17 +82,27 @@ class Model:
         W = tf.Variable ( weights_init_func( [in_num, neuron_num ], **weights_init_func_args ) , name=name)
         b = tf.Variable ( weights_init_func( [neuron_num], **weights_init_func_args )  )
 
+        self.reshape_when_input_layer_have_two_more_ranks()
         current = tf.matmul (self.current, W) + b
         self.current = act_func ( current)
         
         self.weights.append(W)
+        self.layers.append(self.current)
+        
+    def reshape_when_input_layer_have_two_more_ranks(self):
+        if self.current.get_shape().__len__() != 2 :
+            shape = self.current.get_shape().as_list()
+            gob = 1
+            for i in range ( 1, shape.__len__() ) :
+                gob *= shape[i]
+            self.current = tf.reshape ( self.current , [-1, gob] )
         
     def init_input_layer(self, neuron_num=-1, shape=None, name=None):
         if self.current is not None : return
         if shape is None : shape = [None,neuron_num]
         self.current = tf.placeholder ( tf.float32, shape, name=name )
         self.input = self.current
-#         self.layers.append(self.current)
+        self.layers.append(self.current)
     
     def get_input_num (self, tensor):
         list = tensor.get_shape().as_list()
@@ -77,9 +133,10 @@ class Model:
         self.feed[self.target] = target
     
     def init_loss(self):
-        self.loss = tf.reduce_sum( .5 *  tf.pow(self.target - self.output , 2) )
+        # self.loss = tf.reduce_sum( .5 *  tf.pow(self.target - self.output , 2) )
         
-        # entropy self.loss = tf.reduce_mean (tf.reduce_sum ( self.target * -tf.log(self.output), reduction_indices=[1] ) )
+        # entropy 
+        self.loss = tf.reduce_mean (tf.reduce_sum ( self.target * -tf.log(self.output), reduction_indices=[1] ) )
         
     def optimize(self):
         #self.train_step = tf.train.GradientDescentOptimizer(0.01). minimize ( self.loss )
