@@ -25,6 +25,15 @@ def make_random_feature_and_target(width, size):
     target   = make_random_one_hot_vector(width*width)
     return features, target
 
+def make_random_features_set_and_targets_set ( width, feature_size, set_size):
+    features_set = []
+    targets_set  = []
+    for _ in range ( set_size ) :
+        f , t = make_random_feature_and_target ( width, feature_size)
+        features_set .append( f)
+        targets_set  .append( t)
+    return features_set, targets_set
+
 class Deco ( Model) :
     def one_step(self, loop_index, sess, feed):
         Model.one_step(self, loop_index, sess, feed)
