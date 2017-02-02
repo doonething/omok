@@ -5,6 +5,9 @@ Created on 2017. 2. 2.
 '''
 
 import copy
+import os
+import traceback
+
 
 class YixinSave :
     def __init__(self):
@@ -13,16 +16,26 @@ class YixinSave :
         self.num = 0
         self.blacks = []
         self.whites = []
-
-    def read_white_win(self, path):
+    
+    def read_dir(self, dir):
+        inputTargetSet = []
+        for f in os.listdir(dir) :
+            path = dir + os.sep + f
+            if f.startswith('.') : continue
+            try :
+                inputTargetSet.append( self.read_file(path) )
+            except Exception as e :
+                traceback.print_exc()
+                raise Exception('failed file : ' + path)
+        return inputTargetSet 
+    
+    def read_file(self, path):
         self.read_yixin(path)
         self.make_features()
-        return self.make_input_targets_for_white_win()
-        
-    def read_black_win(self, path):
-        self.read_yixin(path)
-        self.make_features()
-        return self.make_input_targets_for_black_win()
+        return self.make_input_targets()
+    
+    def make_input_targets(self):
+        raise Exception('YixinSave.make_input_targets() is abstract method , use class YixinSaveWhiteWin or YixinSaveBlackWin')
             
     def read_yixin(self, path):
         with open (path) as f :
@@ -65,27 +78,7 @@ class YixinSave :
             
         return features 
 
-    def make_input_targets_for_white_win(self):
-        inputTargets = [] #YixinSave.InputTargets()
-        features = self.make_features()
-        for i, white in zip ( range(1,features.__len__(),2 ) 
-                             ,self.whites ):
-            inputTarget = YixinSave.InputTarget()
-            inputTarget.input  = features[i]
-            inputTarget.target = self.make_target( white)
-            inputTargets.append( inputTarget )
-        return inputTargets
     
-    def make_input_targets_for_black_win(self):
-        inputTargets = [] #YixinSave.InputTargets()
-        features = self.make_features()
-        for i, black in zip ( range(0,features.__len__(),2 ) 
-                             ,self.blacks ):
-            inputTarget = YixinSave.InputTarget()
-            inputTarget.input  = features[i]
-            inputTarget.target = self.make_target( black)
-            inputTargets.append( inputTarget )
-        return inputTargets
     
     ##########################################
     
@@ -107,3 +100,29 @@ class YixinSave :
         def __init__(self):
             self.input = []
             self.target = []
+
+
+class YixinSaveWhiteWin(YixinSave):
+    def make_input_targets(self):
+        inputTargets = [] #YixinSave.InputTargets()
+        features = self.make_features()
+        for i, white in zip ( range(1,features.__len__(),2 ) 
+                             ,self.whites ):
+            inputTarget = YixinSave.InputTarget()
+            inputTarget.input  = features[i]
+            inputTarget.target = self.make_target( white)
+            inputTargets.append( inputTarget )
+        return inputTargets
+    
+
+class YixinSaveBlackWin(YixinSave):
+    def make_input_targets(self):
+        inputTargets = [] #YixinSave.InputTargets()
+        features = self.make_features()
+        for i, black in zip ( range(0,features.__len__(),2 ) 
+                             ,self.blacks ):
+            inputTarget = YixinSave.InputTarget()
+            inputTarget.input  = features[i]
+            inputTarget.target = self.make_target( black)
+            inputTargets.append( inputTarget )
+        return inputTargets

@@ -6,7 +6,7 @@ Created on 2017. 2. 1.
 import unittest
 import os
 
-from yixin.reader import YixinSave
+from yixin.reader import YixinSave, YixinSaveBlackWin, YixinSaveWhiteWin
 
 class Test(unittest.TestCase):
 
@@ -100,12 +100,12 @@ class Test(unittest.TestCase):
         self.assertEqual([0,0,0,1,1,1,0,0,0], features[6][2] ) # white
         
     def test_make_input_target_for_white_win(self):
-        save = YixinSave()
+        save = YixinSaveWhiteWin()
         save.width = 3
         save.height = 3
         save.blacks = [0,1,2]
         save.whites = [3,4,5]
-        input_and_targets  = save.make_input_targets_for_white_win()
+        input_and_targets  = save.make_input_targets()
         input = input_and_targets[0].input
         self.assertEqual([0,1,1,1,1,1,1,1,1], input[0] ) # none
         self.assertEqual([1,0,0,0,0,0,0,0,0], input[1] ) # black
@@ -119,12 +119,12 @@ class Test(unittest.TestCase):
         self.assertEqual([0,0,0,0,1,0,0,0,0], input_and_targets[1].target)
     
     def test_make_input_target_for_black_win(self):
-        save = self.mock
+        save = self.mock = YixinSaveBlackWin()
         save.width = 3
         save.height = 3
         save.blacks = [0,1,2]
         save.whites = [3,4,5]
-        input_and_targets  = save.make_input_targets_for_black_win()
+        input_and_targets  = save.make_input_targets()
         input = input_and_targets[0].input
         self.assertEqual([1,1,1,1,1,1,1,1,1], input[0] ) # none
         self.assertEqual([0,0,0,0,0,0,0,0,0], input[1] ) # black
@@ -138,13 +138,10 @@ class Test(unittest.TestCase):
         self.assertEqual([0,1,0,0,0,0,0,0,0], input_and_targets[1].target)
     
     
-    def test_read_white_win_on_many_files(self):
-        inputTargetSet = []
+    def test_read_dir(self):
+        self.mock = YixinSaveWhiteWin()
         dir = 'yixin'
-        for f in os.listdir(dir) :
-            path = dir + os.sep + f
-            if f[0] == 'w' :
-                inputTargetSet.append( self.mock.read_white_win(path) )
+        self.mock.read_dir(dir)
 
 
 if __name__ == "__main__":
