@@ -145,7 +145,6 @@ class Test(unittest.TestCase):
             path = dir + os.sep + f
             if f[0] == 'w' :
                 inputTargetSet.append( self.mock.read_white_win(path) )
-        print inputTargetSet
 
 
 if __name__ == "__main__":
