@@ -6,8 +6,35 @@ Created on 2017. 2. 2.
 
 import copy
 import os
-import traceback
 
+
+
+
+class Reader:
+    def read_winner(self, dir):
+        path = dir + os.sep + 'winner'
+        with open ( path ) as f:
+            l = f.readline()
+            return l
+        
+    def read_dir(self, dir):
+        inputTargetSet = []
+        winner = self.read_winner(dir)
+        if winner == 'white' :
+            worker = YixinSaveWhiteWin ()
+        else :
+            worker = YixinSaveBlackWin ()
+        for f in os.listdir(dir) :
+            path = dir + os.sep + f
+            if os.path.isdir(path) :
+                self.read_dir ( path)
+            try :
+                worker.__init__()
+                inputTargetSet.append( worker.read_file(path) )
+            except Exception as e :
+                print 'Because %s , %s was skipped'% (str(e), path) 
+        return inputTargetSet
+    
 
 class YixinSave :
     def __init__(self):
@@ -17,16 +44,6 @@ class YixinSave :
         self.blacks = []
         self.whites = []
     
-    def read_dir(self, dir):
-        inputTargetSet = []
-        for f in os.listdir(dir) :
-            path = dir + os.sep + f
-            try :
-                self.__init__()
-                inputTargetSet.append( self.read_file(path) )
-            except Exception as e :
-                print 'Because %s , %s was skipped'% (str(e), path) 
-        return inputTargetSet 
     
     def read_file(self, path):
         self.read_yixin(path)

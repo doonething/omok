@@ -6,7 +6,7 @@ Created on 2017. 2. 1.
 import unittest
 import os
 
-from yixin.reader import YixinSave, YixinSaveBlackWin, YixinSaveWhiteWin
+from yixin.reader import YixinSave, YixinSaveBlackWin, YixinSaveWhiteWin, Reader
 
 class Test(unittest.TestCase):
 
@@ -139,9 +139,20 @@ class Test(unittest.TestCase):
     
     
     def test_read_dir(self):
-        self.mock = YixinSaveWhiteWin()
+        self.mock = Reader()
         dir = 'yixin'
         self.mock.read_dir(dir)
+    
+    def test_read_winner(self):
+        mock = Reader()
+        with open ( 'winner', 'w') as f :
+            f.write('black')
+        try :
+            winner = mock.read_winner('.')
+            self.assertEquals ( 'black', winner )
+        finally :
+            os.remove('winner')
+        
 
 
 if __name__ == "__main__":
