@@ -106,17 +106,17 @@ class Test(unittest.TestCase):
         save.blacks = [0,1,2]
         save.whites = [3,4,5]
         input_and_targets  = save.make_input_targets()
-        input = input_and_targets[0].input
+        input = input_and_targets.input[0]
         self.assertEqual([0,1,1,1,1,1,1,1,1], input[0] ) # none
         self.assertEqual([1,0,0,0,0,0,0,0,0], input[1] ) # black
         self.assertEqual([0,0,0,0,0,0,0,0,0], input[2] ) # white
-        self.assertEqual([0,0,0,1,0,0,0,0,0], input_and_targets[0].target)
+        self.assertEqual([0,0,0,1,0,0,0,0,0], input_and_targets.target[0])
         
-        input = input_and_targets[1].input
+        input = input_and_targets.input[1]
         self.assertEqual([0,0,1,0,1,1,1,1,1], input[0] ) # none
         self.assertEqual([1,1,0,0,0,0,0,0,0], input[1] ) # black
         self.assertEqual([0,0,0,1,0,0,0,0,0], input[2] ) # white
-        self.assertEqual([0,0,0,0,1,0,0,0,0], input_and_targets[1].target)
+        self.assertEqual([0,0,0,0,1,0,0,0,0], input_and_targets.target[1])
     
     def test_make_input_target_for_black_win(self):
         save = self.mock = YixinSaveBlackWin()
@@ -125,17 +125,17 @@ class Test(unittest.TestCase):
         save.blacks = [0,1,2]
         save.whites = [3,4,5]
         input_and_targets  = save.make_input_targets()
-        input = input_and_targets[0].input
+        input = input_and_targets.input[0]
         self.assertEqual([1,1,1,1,1,1,1,1,1], input[0] ) # none
         self.assertEqual([0,0,0,0,0,0,0,0,0], input[1] ) # black
         self.assertEqual([0,0,0,0,0,0,0,0,0], input[2] ) # white
-        self.assertEqual([1,0,0,0,0,0,0,0,0], input_and_targets[0].target)
+        self.assertEqual([1,0,0,0,0,0,0,0,0], input_and_targets.target[0])
         
-        input = input_and_targets[1].input
+        input = input_and_targets.input[1]
         self.assertEqual([0,1,1,0,1,1,1,1,1], input[0] ) # none
         self.assertEqual([1,0,0,0,0,0,0,0,0], input[1] ) # black
         self.assertEqual([0,0,0,1,0,0,0,0,0], input[2] ) # white
-        self.assertEqual([0,1,0,0,0,0,0,0,0], input_and_targets[1].target)
+        self.assertEqual([0,1,0,0,0,0,0,0,0], input_and_targets.target[1])
     
     
     def test_read_dir(self):

@@ -21,12 +21,11 @@ class YixinSave :
         inputTargetSet = []
         for f in os.listdir(dir) :
             path = dir + os.sep + f
-            if f.startswith('.') : continue
             try :
+                self.__init__()
                 inputTargetSet.append( self.read_file(path) )
             except Exception as e :
-                traceback.print_exc()
-                raise Exception('failed file : ' + path)
+                print 'Because %s , %s was skipped'% (str(e), path) 
         return inputTargetSet 
     
     def read_file(self, path):
@@ -96,33 +95,29 @@ class YixinSave :
         l [ one_hot_index] = 1
         return l
     
-    class InputTarget:
-        def __init__(self):
-            self.input = []
-            self.target = []
+class InputTarget:
+    def __init__(self):
+        self.input = []
+        self.target = []
 
 
 class YixinSaveWhiteWin(YixinSave):
     def make_input_targets(self):
-        inputTargets = [] #YixinSave.InputTargets()
+        inputTarget = InputTarget()
         features = self.make_features()
         for i, white in zip ( range(1,features.__len__(),2 ) 
                              ,self.whites ):
-            inputTarget = YixinSave.InputTarget()
-            inputTarget.input  = features[i]
-            inputTarget.target = self.make_target( white)
-            inputTargets.append( inputTarget )
-        return inputTargets
+            inputTarget.input .append( features[i] )
+            inputTarget.target.append( self.make_target( white) )
+        return inputTarget
     
 
 class YixinSaveBlackWin(YixinSave):
     def make_input_targets(self):
-        inputTargets = [] #YixinSave.InputTargets()
+        inputTarget = InputTarget()
         features = self.make_features()
         for i, black in zip ( range(0,features.__len__(),2 ) 
                              ,self.blacks ):
-            inputTarget = YixinSave.InputTarget()
-            inputTarget.input  = features[i]
-            inputTarget.target = self.make_target( black)
-            inputTargets.append( inputTarget )
-        return inputTargets
+            inputTarget.input .append( features[i] )
+            inputTarget.target.append( self.make_target( black) )
+        return inputTarget
