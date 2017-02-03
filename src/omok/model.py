@@ -24,6 +24,7 @@ class Model:
         self.learnning_rate = .00017
         self.is_check_loss_threshold = False
         self.layers = []
+        self.accuracy = None
     
     def add_conv2d(self
                 , filter_size
@@ -117,6 +118,7 @@ class Model:
         self.init_loss()
         self.optimize()
         self.init_session()
+        self.init_acc()
         self.saver.init(self.sess, save_dir)
         
     def fit(self):
@@ -172,14 +174,18 @@ class Model:
         ret =  self.sess.run(self.output , feed_dict = feed)
         return ret
     
-    def get_acc (self, out=None, target=None) :
+    def init_acc (self, out=None, target=None) :
         if out    is None : out    = self.output
         if target is None : target = self.target
         out_max    = tf.argmax(out,1)
         target_max = tf.argmax(target,1)
         correct_prediction = tf.equal(out_max, target_max ) 
-        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-        return self.run ( accuracy )
+        self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    
+    def get_acc(self, out=None, target=None):
+        if out is not None and target is not None : 
+            self.init_acc(out, target)
+        return self.run ( self.accuracy )
     
     def eval_list(self, x):
         return self.eval(x)[0].tolist()
